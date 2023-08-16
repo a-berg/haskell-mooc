@@ -26,11 +26,11 @@ data Velocity = Velocity Double
 
 -- velocity computes a velocity given a distance and a time
 velocity :: Distance -> Time -> Velocity
-velocity = todo
+velocity (Distance d) (Time t) = Velocity (d/t)
 
 -- travel computes a distance given a velocity and a time
 travel :: Velocity -> Time -> Distance
-travel = todo
+travel (Velocity v) (Time t) = Distance (v*t)
 
 ------------------------------------------------------------------------------
 -- Ex 2: let's implement a simple Set datatype. A Set is a list of
@@ -49,15 +49,19 @@ data Set a = Set [a]
 
 -- emptySet is a set with no elements
 emptySet :: Set a
-emptySet = todo
+emptySet = Set []
 
 -- member tests if an element is in a set
 member :: Eq a => a -> Set a -> Bool
-member = todo
+member _ (Set []) = False
+member val (Set xs) = val `elem` xs
 
 -- add a member to a set
-add :: a -> Set a -> Set a
-add = todo
+add :: Ord a => a -> Set a -> Set a
+add val set | member val set = set
+            | otherwise = add' val set
+              where
+                add' val (Set xs) = Set (sort (val : xs))
 
 ------------------------------------------------------------------------------
 -- Ex 3: a state machine for baking a cake. The type Event represents
@@ -92,10 +96,36 @@ add = todo
 data Event = AddEggs | AddFlour | AddSugar | Mix | Bake
   deriving (Eq,Show)
 
-data State = Start | Error | Finished
+data State = Start 
+           | Egged
+           | Floured
+           | Sugared
+           | Mixed
+           | Error
+           | Finished
   deriving (Eq,Show)
 
-step = todo
+step :: State -> Event -> State
+step Start s  = case s of 
+  AddEggs -> Egged
+  _anyOtherState -> Error
+step Egged    s = case s of
+  AddFlour -> Floured
+  AddSugar -> Sugared
+  _anyOtherState -> Error
+step Floured  s = case s of
+  AddSugar -> Sugared
+  Mix -> Mixed
+  _anyOtherState -> Error
+step Sugared  s      = case s of
+  AddFlour -> Floured
+  Mix -> Mixed
+  _anyOtherState -> Error
+step Mixed    s     = case s of
+  Bake -> Finished
+  _anyOtherState -> Error
+step Finished _        = Finished
+step Error    _        = Error
 
 -- do not edit this
 bake :: [Event] -> State
