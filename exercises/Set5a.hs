@@ -272,13 +272,12 @@ data Nat = Zero | PlusOne Nat
 
 fromNat :: Nat -> Int
 fromNat Zero = 0
-fromNat (PlusOne n) = 1 + (fromNat n)
+fromNat (PlusOne n) = 1 + fromNat n
 
 toNat :: Int -> Maybe Nat
-toNat z
-    | z < 0 = Nothing
-    | z == 0 = Just Zero
-    | otherwise = Just $ PlusOne $ fromJust $ toNat (z-1)
+toNat z = case compare z 0 of LT -> Nothing
+                              EQ -> Just Zero
+                              GT -> Just $ PlusOne $ fromJust $ toNat (z-1)
 
 ------------------------------------------------------------------------------
 -- Ex 12: While pleasingly simple in its definition, the Nat datatype is not
@@ -339,14 +338,24 @@ inc (I b) = O (inc b)
 
 prettyPrint :: Bin -> String
 prettyPrint End = ""
-prettyPrint (O rest) = (prettyPrint rest) ++ "0"
-prettyPrint (I rest) = (prettyPrint rest) ++ "1"
+prettyPrint (O rest) = prettyPrint rest ++ "0"
+prettyPrint (I rest) = prettyPrint rest ++ "1"
 
 fromBin :: Bin -> Int
 fromBin b = case b of
-    (O rest) -> fromBin rest
-    (I rest) -> 2^k + (fromBin rest)
-    where k = 1
+    (O rest) -> 2 * fromBin rest + 0
+    (I rest) -> 2 * fromBin rest + 1
+    End -> 0
 
 toBin :: Int -> Bin
-toBin = todo
+-- toBin 0 = (O End)
+-- toBin 1 = (I End)
+-- toBin n = inc (toBin (n-1)) 
+-- This implementation is better than the above (commented) one,
+-- as it uses direct construction instead of spamming "inc".
+toBin 0 = (O End)
+toBin 1 = (I End)
+toBin n
+  | n == 0 = End
+  | even n = (O (toBin (div n 2)))
+  | odd  n = (I (toBin (div n 2)))

@@ -4,18 +4,18 @@ module Set5b where
 
 import Mooc.Todo
 
+import Data.Maybe
 -- The next exercises use the binary tree type defined like this:
 
 data Tree a = Empty | Node a (Tree a) (Tree a)
   deriving (Show, Eq)
 
-
 --   Helper function because this is ridiculous.
 treeRecurse :: (b -> b -> b) -> (a -> b) -> b -> Tree a -> b
 treeRecurse _ _ zero Empty = zero
 treeRecurse op fn zero (Node v tl tr) = op (fn v) (op (treeRecurse' tl) (treeRecurse' tr))
-    where treeRecurse' = treeRecurse op fn zero
-
+  where
+    treeRecurse' = treeRecurse op fn zero
 
 ------------------------------------------------------------------------------
 -- Ex 1: implement the function valAtRoot which returns the value at
@@ -24,8 +24,8 @@ treeRecurse op fn zero (Node v tl tr) = op (fn v) (op (treeRecurse' tl) (treeRec
 
 valAtRoot :: Tree a -> Maybe a
 valAtRoot t = case t of
-    Empty -> Nothing
-    (Node a _ _) -> Just a
+  Empty -> Nothing
+  (Node a _ _) -> Just a
 
 ------------------------------------------------------------------------------
 -- Ex 2: compute the size of a tree, that is, the number of Node
@@ -117,10 +117,10 @@ mapTree f (Node v tr tl) = Node (f v) (mapTree f tr) (mapTree f tl)
 --                 (Node 3 Empty Empty))
 
 cull :: Eq a => a -> Tree a -> Tree a
-cull _   Empty = Empty
+cull _ Empty = Empty
 cull val (Node v tr tl)
-    | v == val = Empty
-    | otherwise = (Node v (cull val tr) (cull val tl))
+  | v == val = Empty
+  | otherwise = Node v (cull val tr) (cull val tl)
 
 ------------------------------------------------------------------------------
 -- Ex 7: check if a tree is ordered. A tree is ordered if:
@@ -162,7 +162,11 @@ cull val (Node v tr tl)
 --                     (Node 3 Empty Empty))   ==>   True
 
 isOrdered :: Ord a => Tree a -> Bool
-isOrdered (Node v tl tr) = todo
+isOrdered Empty = True
+isOrdered (Node v tl tr) = 
+  allValues (< v) tl && allValues (> v) tr 
+  && isOrdered tl 
+  && isOrdered tr
 
 ------------------------------------------------------------------------------
 -- Ex 8: a path in a tree can be represented as a list of steps that
@@ -181,7 +185,10 @@ data Step = StepL | StepR
 --   walk [StepL,StepL] (Node 1 (Node 2 Empty Empty) Empty)  ==>  Nothing
 
 walk :: [Step] -> Tree a -> Maybe a
-walk = todo
+walk _             Empty = Nothing
+walk []            (Node v tl tr) = Just v
+walk (StepL:steps) (Node v tl tr) = walk steps tl
+walk (StepR:steps) (Node v tl tr) = walk steps tr
 
 ------------------------------------------------------------------------------
 -- Ex 9: given a tree, a path and a value, set the value at the end of
@@ -202,7 +209,10 @@ walk = todo
 --   set [StepL,StepR] 1 (Node 0 Empty Empty)  ==>  (Node 0 Empty Empty)
 
 set :: [Step] -> a -> Tree a -> Tree a
-set path val tree = todo
+set _ val Empty = Empty
+set [] val (Node v tl tr) = Node val tl tr
+set (StepL:steps) val (Node v tl tr) = Node v (set steps val tl) tr
+set (StepR:steps) val (Node v tl tr) = Node v tl (set steps val tr)
 
 ------------------------------------------------------------------------------
 -- Ex 10: given a value and a tree, return a path that goes from the
@@ -217,5 +227,13 @@ set path val tree = todo
 --                            (Node 1 Empty Empty))
 --                    (Node 5 Empty Empty))                     ==>  Just [StepL,StepR]
 
+
+-- _search :: Eq a => a -> Tree a -> [Step] -> Maybe [Step]
+-- _search _ Empty _ = Nothing
+-- _search v (Node val tl tr) pth
+--   | v == val = Just pth
+--   | otherwise = _search v tl (pth++[StepL])
+
 search :: Eq a => a -> Tree a -> Maybe [Step]
 search = todo
+-- search v tree = _search v tree []
