@@ -100,32 +100,23 @@ data State = Start
            | Egged
            | Floured
            | Sugared
+           | FlouredSugared
            | Mixed
            | Error
            | Finished
   deriving (Eq,Show)
 
 step :: State -> Event -> State
-step Start s  = case s of 
-  AddEggs -> Egged
-  _anyOtherState -> Error
-step Egged    s = case s of
-  AddFlour -> Floured
-  AddSugar -> Sugared
-  _anyOtherState -> Error
-step Floured  s = case s of
-  AddSugar -> Sugared
-  Mix -> Mixed
-  _anyOtherState -> Error
-step Sugared  s      = case s of
-  AddFlour -> Floured
-  Mix -> Mixed
-  _anyOtherState -> Error
-step Mixed    s     = case s of
-  Bake -> Finished
-  _anyOtherState -> Error
 step Finished _        = Finished
 step Error    _        = Error
+step Start AddEggs  = Egged 
+step Egged AddFlour = Floured
+step Egged AddSugar = Sugared
+step Floured  AddSugar = FlouredSugared
+step Sugared  AddFlour = FlouredSugared
+step FlouredSugared Mix = Mixed
+step Mixed    Bake    = Finished
+step _ _ = Error
 
 -- do not edit this
 bake :: [Event] -> State

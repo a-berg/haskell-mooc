@@ -235,5 +235,11 @@ set (StepR:steps) val (Node v tl tr) = Node v tl (set steps val tr)
 --   | otherwise = _search v tl (pth++[StepL])
 
 search :: Eq a => a -> Tree a -> Maybe [Step]
-search = todo
--- search v tree = _search v tree []
+search _ Empty = Nothing
+search val (Node v tl tr)
+  | v == val  = Just []
+  | otherwise = case search val tl of
+                  Just a -> Just (StepL : a)
+                  Nothing -> case search val tr of
+                    Just a -> Just (StepR : a)
+                    Nothing -> Nothing

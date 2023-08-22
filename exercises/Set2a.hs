@@ -51,7 +51,7 @@ updateAt :: Int -> a -> [a] -> [a]
 updateAt i x xs
     | i == 0 = [x] ++ tail xs
     | i + 1 == length xs = init xs ++ [x]
-    | otherwise = (take i xs) ++ [x] ++ (drop (i+1) xs)
+    | otherwise = take i xs ++ [x] ++ drop (i+1) xs
 
 ------------------------------------------------------------------------------
 -- Ex 4: substring i j s should return the substring of s starting at
@@ -80,7 +80,7 @@ substring i j s = take (j-i) (drop i s)
 --   isPalindrome "AB"       ==>  False
 
 isPalindrome :: String -> Bool
-isPalindrome str = (reverse str) == str
+isPalindrome str = reverse str == str
 
 ------------------------------------------------------------------------------
 -- Ex 6: implement the function palindromify that chops a character
