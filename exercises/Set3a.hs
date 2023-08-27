@@ -299,5 +299,21 @@ multiApp f gs x = f (map ($x) gs)
 -- using (:). If you build the list in an argument to a helper
 -- function, the surprise won't work.
 
+-- count :: [String] -> String -> Integer
+-- count xs word = sum (map (\z -> if z == word then 1 else (-1)) xs)
+
 interpreter :: [String] -> [String]
-interpreter commands = todo
+-- interpreter (xs:"printX":cmds) = show (count xs "right"):interpreter cmds
+-- interpreter (xs:"printY":cmds) = show (count xs "up"):interpreter cmds
+interpreter cmds = map show (interpreter' 0 0 cmds)
+    where 
+        interpreter' :: Integer -> Integer -> [String] -> [Integer]
+        interpreter' _ _ [] = []
+        interpreter' x y (cmd:cmds)
+            | cmd == "up" = interpreter' x (y+1) cmds
+            | cmd == "down" = interpreter' x (y-1) cmds
+            | cmd == "left" = interpreter' (x-1) y cmds
+            | cmd == "right" = interpreter' (x+1) y cmds
+            | cmd == "printX" = x:interpreter' x y cmds
+            | cmd == "printY" = y:interpreter' x y cmds
+            | otherwise = interpreter' x y cmds
